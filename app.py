@@ -15,7 +15,9 @@ ec2_stack = CdkEc2Stack(app, "nopo-ec2",
                         vpc=vpc_stack.vpc)
 rds_stack = CdkRdsStack(app, "nopo-rds",
                         vpc=vpc_stack.vpc,
-                        asg_security_groups=ec2_stack.asg.connections.security_groups)
+                        asg_security_groups=ec2_stack.asg.connections.security_groups,
+                        bastion_security_groups=ec2_stack.bastion.connections.security_groups
+                        )
 
 
 app.synth()

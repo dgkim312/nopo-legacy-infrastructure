@@ -5,7 +5,7 @@ from constructs import Construct
 
 class CdkRdsStack(Stack):
 
-    def __init__(self, scope: Construct, id: str, vpc, asg_security_groups, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, vpc, asg_security_groups, bastion_security_groups, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         # Ceate Aurora Cluster with 2 instances with CDK High Level API
@@ -52,3 +52,6 @@ class CdkRdsStack(Stack):
                                              )
         for asg_sg in asg_security_groups:
             db_mysql_easy.connections.allow_default_port_from(asg_sg, "EC2 Autoscaling Group access MySQL")
+            
+        for bastion_sg in bastion_security_groups:
+            db_mysql_easy.connections.allow_default_port_from(bastion_sg, "Bastion Instance access MySQL")

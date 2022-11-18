@@ -21,17 +21,17 @@ class CdkEc2Stack(Stack):
         super().__init__(scope, id, **kwargs)
 
         # Create Bastion
-        bastion = ec2.BastionHostLinux(self, "myBastion",
-                                       vpc=vpc,
-                                       subnet_selection=ec2.SubnetSelection(
-                                           subnet_type=ec2.SubnetType.PUBLIC),
-                                       instance_name="myBastionHostLinux",
-                                       instance_type=ec2.InstanceType(instance_type_identifier="t2.micro"))
+        self.bastion = ec2.BastionHostLinux(self, "myBastion",
+                                            vpc=vpc,
+                                            subnet_selection=ec2.SubnetSelection(
+                                                subnet_type=ec2.SubnetType.PUBLIC),
+                                            instance_name="myBastionHostLinux",
+                                            instance_type=ec2.InstanceType(instance_type_identifier="t2.micro"))
 
         # Setup key_name for EC2 instance login if you don't use Session Manager
-        # bastion.instance.instance.add_property_override("KeyName", key_name)
+        self.bastion.instance.instance.add_property_override("KeyName", key_name)
 
-        bastion.connections.allow_from_any_ipv4(
+        self.bastion.connections.allow_from_any_ipv4(
             ec2.Port.tcp(22), "Internet access SSH")
 
         # Create ALB
@@ -49,7 +49,8 @@ class CdkEc2Stack(Stack):
         # Create Autoscaling Group with fixed 2*EC2 hosts
         self.asg = autoscaling.AutoScalingGroup(self, "myASG",
                                                 vpc=vpc,
-                                                vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS),
+                                                vpc_subnets=ec2.SubnetSelection(
+                                                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS),
                                                 instance_type=ec2.InstanceType(instance_type_identifier=ec2_type),
                                                 machine_image=linux_ami,
                                                 key_name=key_name,
@@ -80,4 +81,4 @@ class CdkEc2Stack(Stack):
                              targets=[self.asg])
 
         CfnOutput(self, "Output",
-                       value=alb.load_balancer_dns_name)
+                  value=alb.load_balancer_dns_name)
